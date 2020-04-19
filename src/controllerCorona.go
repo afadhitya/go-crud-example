@@ -10,12 +10,14 @@ import (
 )
 
 func getGlobalData(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	global := getAllData().Global
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(global)
 }
 
 func getAllCountryData(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	countries := getCountryData()
 
 	w.Header().Set("Content-Type", "application/json")
@@ -23,7 +25,7 @@ func getAllCountryData(w http.ResponseWriter, r *http.Request) {
 }
 
 func getByCountry(w http.ResponseWriter, r *http.Request) {
-
+	enableCors(&w)
 	vars := mux.Vars(r)
 	country := getSpecificCountryData(vars["countryCode"])
 
