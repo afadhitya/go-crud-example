@@ -4,32 +4,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
-
-func getGlobalData(w http.ResponseWriter, r *http.Request) {
-	global := getAllData().Global
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(global)
-}
-
-func getAllCountryData(w http.ResponseWriter, r *http.Request) {
-	countries := getCountryData()
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(countries)
-}
-
-func getByCountry(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	country := getSpecificCountryData(vars["countryCode"])
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(country)
-}
 
 func getAllData() AllDataCorona {
 	var allData AllDataCorona
@@ -65,4 +42,35 @@ func getSpecificCountryData(countryCode string) Country {
 	}
 
 	return country
+}
+
+func getHighestCountry() Country {
+	countries := getCountryData()
+	var temp Country
+	temp.TotalConfirmed = 0
+	for i := range countries {
+		if temp.TotalConfirmed < countries[i].TotalConfirmed {
+			temp = countries[i]
+		}
+	}
+
+	return temp
+}
+
+func getEstimationByCountry(countryCode string, chance float64, averageMeetOtherPerson int64, dayAfterToday float64) (int64, int64) {
+
+	country := getSpecificCountryData(countryCode)
+
+	infectedTotal := country.TotalConfirmed
+
+	chanceMultiplePersonMeet := float64(averageMeetOtherPerson) * chance
+	estimationMultiplicationIncrease := math.Pow((1 + chanceMultiplePersonMeet), dayAfterToday)
+	estimationOnXDay := estimationMultiplicationIncrease * float64(infectedTotal)
+
+	estimationincreased := int64(estimationOnXDay) - infectedTotal
+
+	log.Print(chanceMultiplePersonMeet)
+	log.Print(estimationincreased)
+
+	return int64(estimationOnXDay), estimationincreased
 }

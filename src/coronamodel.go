@@ -28,3 +28,12 @@ type Country struct {
 	TotalRecovered int64
 	Date           time.Time
 }
+
+type DayEstimation struct {
+	Country                           Country
+	EstimationOnXDay                  int64
+	EstimationIncreasedInfectedPerson int64
+	XDay                              float64
+	TodayDate                         time.Time
+	XDayAfterTodayDate                time.Time
+}
